@@ -2,19 +2,16 @@ package scanner.vista;
 
 import javax.swing.*;
 
+import scanner.modelo.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class VentanaPrincipal extends JFrame implements ActionListener {
 
-    private JButton botonLimpiar;
-    private JButton botonComenzar;
-    
-    private JTextField cajaIpInicio;
-    private JTextField cajaIpFinal;
-    private JTextField cajaEspMinimo;
-    private JTextField cajaEspMaximo;
+    private JButton botonLimpiar, botonComenzar;
+    private JLabel txtIpInicio, txtIpFinal, txtEspMinimo, txtEspMaximo;
+    private JTextField cajaIpInicio, cajaIpFinal, cajaEspMaximo, cajaEspMinimo;
 
     public VentanaPrincipal() {
 
@@ -45,7 +42,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         // IP inicial
         gbc.gridy = 1;
         gbc.gridx = 0;
-        JLabel txtIpInicio = new JLabel("IP inicial:");
+        txtIpInicio = new JLabel("IP inicial:");
         lamina.add(txtIpInicio, gbc);
 
         gbc.gridx = 1;
@@ -55,17 +52,17 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         // IP final
         gbc.gridy = 2;
         gbc.gridx = 0;
-        JLabel txtIpFinal = new JLabel("IP final:");
+        txtIpFinal = new JLabel("IP final:");
         lamina.add(txtIpFinal, gbc);
 
         gbc.gridx = 1;
         cajaIpFinal = new JTextField(15);
         lamina.add(cajaIpFinal, gbc);
 
-        // Espera mínima
+        // Espera mínima 
         gbc.gridy = 3;
         gbc.gridx = 0;
-        JLabel txtEspMinimo = new JLabel("Tiempo de espera mínimo (segs)");
+        txtEspMinimo = new JLabel("Tiempo de espera mínimo (segs)");
         lamina.add(txtEspMinimo, gbc);
 
         gbc.gridx = 1;
@@ -75,7 +72,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         // Espera máxima
         gbc.gridy = 4;
         gbc.gridx = 0;
-        JLabel txtEspMaximo = new JLabel("Tiempo de espera máximo (segs)");
+        txtEspMaximo = new JLabel("Tiempo de espera máximo (segs)");
         lamina.add(txtEspMaximo, gbc);
 
         gbc.gridx = 1;
@@ -95,6 +92,8 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
         // Agregar panel central
         add(lamina, BorderLayout.CENTER);
+        
+        
     }
 
     @Override
@@ -102,14 +101,43 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         Object source = e.getSource();
 
         if (source == botonComenzar) {
-        	new VentanaCarga().setVisible(true);
-            
-        } else if (source == botonLimpiar) { 
-        	// Vacia los contenedores de texto
-        	cajaIpInicio.setText("");
-        	cajaIpFinal.setText("");
-        	cajaEspMinimo.setText("");
-        	cajaEspMaximo.setText("");
+            new VentanaCarga().setVisible(true);
+
+            String IpInicio = cajaIpInicio.getText();
+            String IpFinal = cajaIpFinal.getText();
+            String txTiempoMax = cajaEspMaximo.getText();
+            String txTiempoMin = cajaEspMinimo.getText();
+
+            if (!IpInicio.isEmpty() && !IpFinal.isEmpty()) { // Si los campos de ip tienen contenido
+                if (!txTiempoMax.isEmpty() && !txTiempoMin.isEmpty()) { // Si los campos de tiempo tienen contenido
+                    try {
+                        int tiempoMin = Integer.parseInt(txTiempoMin);
+                        int tiempoMax = Integer.parseInt(txTiempoMax);
+                        
+                        
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Tiempo minimo y maximo deben ser números válidos.");
+                        }
+                    if (scanner.modelo.Metodos.validarIp(IpInicio) == false) {
+                        System.out.println("La IP no es válida.");
+                    } else {
+                        System.out.println("La IP es inválida.");
+                    }
+                }
+            else {
+                JOptionPane.showMessageDialog(this, "Todos los campos deben estar completos.");
+            }
+
+        }
+        else if (source == botonLimpiar) {
+            // Vacía los contenedores de texto
+            System.out.println(txtEspMaximo);
+            cajaIpInicio.setText("");
+            cajaIpFinal.setText("");
+            cajaEspMinimo.setText("");
+            cajaEspMaximo.setText("");
+        	}
+
         }
     }
 }
