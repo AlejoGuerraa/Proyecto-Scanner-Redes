@@ -10,6 +10,6 @@ public class Main {
         venPrincipal.setVisible(true);
         
         Metodos m = new Metodos();
-        m.prueba();
+        //m.prueba();
     }
 }
