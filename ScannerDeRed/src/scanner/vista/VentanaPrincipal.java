@@ -1,227 +1,282 @@
 package scanner.vista;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import scanner.modelo.*;
+import scanner.modelo.Metodos;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class VentanaPrincipal extends JFrame implements ActionListener {
 
-    private JButton botonLimpiar, botonComenzar;
-    private JLabel txtIpInicio, txtIpFinal, txtEspMaximo;
+    private JButton botonLimpiar, botonComenzar, botonTema;
+    private JTextField cajaIpInicio, cajaIpFinal, cajaEspMaximo, cajaPings;
     private JLabel estadoInicio, estadoFinal;
-    private JTextField cajaIpInicio, cajaIpFinal, cajaEspMaximo;
+    private boolean modoOscuro = false; // Tema por defecto claro
 
     public VentanaPrincipal() {
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Scanner de red");
-        setSize(520, 300);
+        setSize(550, 380);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
-        JLabel textoBienvenida = new JLabel("Bienvenido al Scanner de red. Ingrese sus datos:");
-        textoBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
-        textoBienvenida.setFont(new Font("SansSerif", Font.BOLD, 14));
-        add(textoBienvenida, BorderLayout.NORTH);
+        // Icono de lupa
+        setIconImage(new ImageIcon(getClass().getResource("/lupa.png")).getImage());
 
-        JPanel lamina = new JPanel(new GridBagLayout());
+        // ---------- Título ----------
+        JLabel titulo = new JLabel("Scanner de Red");
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        titulo.setHorizontalAlignment(SwingConstants.CENTER);
+        add(titulo, BorderLayout.NORTH);
+
+        // ---------- Panel principal ----------
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+        panelPrincipal.setBackground(new Color(245, 247, 250));
+        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        add(panelPrincipal, BorderLayout.CENTER);
+
+        // ---------- Panel IPs ----------
+        JPanel panelIPs = new JPanel(new GridBagLayout());
+        panelIPs.setBackground(new Color(245, 247, 250));
+        panelIPs.setBorder(BorderFactory.createTitledBorder("Rango de IP"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        // Botón Limpiar
-        botonLimpiar = new JButton("Limpiar la pantalla");
-        gbc.gridy = 0;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        lamina.add(botonLimpiar, gbc);
-        gbc.gridwidth = 1;
 
         // IP inicial
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        txtIpInicio = new JLabel("IP inicial:");
-        lamina.add(txtIpInicio, gbc);
-
-        gbc.gridx = 1;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
+        panelIPs.add(new JLabel("IP inicial:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
         cajaIpInicio = new JTextField(15);
-        lamina.add(cajaIpInicio, gbc);
-
-        // Mensaje de validación debajo
-        gbc.gridy = 2;
-        gbc.gridx = 1;
-        estadoInicio = new JLabel("");
-        estadoInicio.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lamina.add(estadoInicio, gbc);
+        cajaIpInicio.setToolTipText("Ingrese la IP inicial del rango (ej: 192.168.1.1)");
+        panelIPs.add(cajaIpInicio, gbc);
+        gbc.gridx = 2; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        estadoInicio = new JLabel();
+        panelIPs.add(estadoInicio, gbc);
 
         // IP final
-        gbc.gridy = 3;
-        gbc.gridx = 0;
-        txtIpFinal = new JLabel("IP final:");
-        lamina.add(txtIpFinal, gbc);
-
-        gbc.gridx = 1;
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panelIPs.add(new JLabel("IP final:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
         cajaIpFinal = new JTextField(15);
-        lamina.add(cajaIpFinal, gbc);
-        
-        gbc.gridy = 4;
-        gbc.gridx = 1;
-        estadoFinal = new JLabel("");
-        estadoFinal.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lamina.add(estadoFinal, gbc);
-        
-        // Espera máxima
-        gbc.gridy = 5;
-        gbc.gridx = 0;
-        txtEspMaximo = new JLabel("Tiempo de espera máximo (segs)");
-        lamina.add(txtEspMaximo, gbc);
+        cajaIpFinal.setToolTipText("Ingrese la IP final del rango (ej: 192.168.1.10)");
+        panelIPs.add(cajaIpFinal, gbc);
+        gbc.gridx = 2; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
+        estadoFinal = new JLabel();
+        panelIPs.add(estadoFinal, gbc);
 
-        gbc.gridx = 1;
+        panelPrincipal.add(panelIPs);
+        panelPrincipal.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        // ---------- Panel Parámetros ----------
+        JPanel panelParametros = new JPanel(new GridBagLayout());
+        panelParametros.setBackground(new Color(245, 247, 250));
+        panelParametros.setBorder(BorderFactory.createTitledBorder("Parámetros de escaneo"));
+
+        // Tiempo máximo
+        gbc.gridx = 0; gbc.gridy = 0; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panelParametros.add(new JLabel("Tiempo máximo (ms):"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
         cajaEspMaximo = new JTextField(15);
-        lamina.add(cajaEspMaximo, gbc);
+        cajaEspMaximo.setToolTipText("Tiempo máximo de espera por ping (min 10ms)");
+        panelParametros.add(cajaEspMaximo, gbc);
 
-        // Botón Comenzar
-        botonComenzar = new JButton("Comenzar el escaneo");
-        gbc.gridy = 6;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        lamina.add(botonComenzar, gbc);
+        // Cantidad de pings
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panelParametros.add(new JLabel("Cantidad de intentos:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        cajaPings = new JTextField(15);
+        cajaPings.setToolTipText("Número de intentos de ping por IP (max 10)");
+        panelParametros.add(cajaPings, gbc);
 
-        // Listeners
-        botonComenzar.addActionListener(this);
+        panelPrincipal.add(panelParametros);
+        panelPrincipal.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        // ---------- Panel Botones ----------
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelBotones.setBackground(panelPrincipal.getBackground());
+
+        // Botón Tema
+        botonTema = crearBoton("Alternar tema");
+
+        // Botones Limpiar y Comenzar
+        botonLimpiar = crearBoton("Limpiar");
+        botonComenzar = crearBoton("Comenzar escaneo");
+
+        panelBotones.add(botonTema);
+        panelBotones.add(botonLimpiar);
+        panelBotones.add(botonComenzar);
+
+        panelPrincipal.add(panelBotones);
+
+        // ---------- Listeners ----------
+        botonTema.addActionListener(e -> {
+            modoOscuro = !modoOscuro;
+            actualizarTema();
+        });
+
         botonLimpiar.addActionListener(this);
-
-        // Agregar panel central
-        add(lamina, BorderLayout.CENTER);
-
-        // Activar validación en tiempo real
+        botonComenzar.addActionListener(this);
         configurarValidacionEnTiempoReal();
+
+        actualizarTema(); // inicializar colores según modo
+    }
+
+    private JButton crearBoton(String texto) {
+        JButton btn = new JButton(texto);
+        btn.setBackground(new Color(46, 134, 222));
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(modoOscuro ? Color.GRAY : new Color(65, 150, 240));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(modoOscuro ? Color.DARK_GRAY : new Color(46, 134, 222));
+            }
+        });
+        return btn;
     }
 
     private void configurarValidacionEnTiempoReal() {
-        cajaIpInicio.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                validarIPEnTiempoReal();
-            }
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                validarIPEnTiempoReal();
-            }
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                validarIPEnTiempoReal();
-            }
-        });
-        cajaIpFinal.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                validarIPEnTiempoReal();
-            }
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                validarIPEnTiempoReal();
-            }
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                validarIPEnTiempoReal();
-            }
-        });
+        DocumentListener dl = new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { validarIP(); }
+            public void removeUpdate(DocumentEvent e) { validarIP(); }
+            public void changedUpdate(DocumentEvent e) { validarIP(); }
+        };
+        cajaIpInicio.getDocument().addDocumentListener(dl);
+        cajaIpFinal.getDocument().addDocumentListener(dl);
     }
 
-    private void validarIPEnTiempoReal() {
-        String ipInicio = cajaIpInicio.getText();
-        String ipFinal = cajaIpFinal.getText();
-        
-        if (ipInicio.isEmpty()) {
-        	estadoInicio.setText("");
+    private void validarIP() {
+        validarCampo(cajaIpInicio, estadoInicio);
+        validarCampo(cajaIpFinal, estadoFinal);
+
+        if (!cajaIpInicio.getText().isEmpty() && cajaIpInicio.getText().equals(cajaIpFinal.getText())) {
+            estadoInicio.setText("IPs iguales");
+            estadoInicio.setForeground(new Color(204, 170, 0));
+            estadoFinal.setText("IPs iguales");
+            estadoFinal.setForeground(new Color(204, 170, 0));
         }
-        else if (scanner.modelo.Metodos.validarIp(ipInicio)) {
-        	estadoInicio.setText("IP válida");
-        	estadoInicio.setForeground(new Color(0, 128, 0)); // Verde
+    }
+
+    private void validarCampo(JTextField campo, JLabel estado) {
+        String ip = campo.getText();
+        if (ip.isEmpty()) {
+            estado.setText("");
+        } else if (Metodos.validarIp(ip)) {
+            estado.setText("IP válida");
+            estado.setForeground(new Color(0, 128, 0));
         } else {
-        	estadoInicio.setText("IP inválida");
-        	estadoInicio.setForeground(Color.RED);
+            estado.setText("IP inválida");
+            estado.setForeground(Color.RED);
         }
-        
-        
-        if (ipFinal.isEmpty()){
-        	estadoFinal.setText("");
+    }
+
+    private void actualizarTema() {
+        Color bg = modoOscuro ? new Color(45, 45, 45) : new Color(245, 247, 250);
+        Color fg = modoOscuro ? Color.WHITE : Color.BLACK;
+        getContentPane().setBackground(bg);
+        for (Component c : getContentPane().getComponents()) {
+            actualizarComponenteTema(c, bg, fg);
         }
-        else if(scanner.modelo.Metodos.validarIp(ipFinal)) {
-        	estadoFinal.setText("IP válida");
-        	estadoFinal.setForeground(new Color(0,128,0));
-        } else{
-        	estadoFinal.setText("IP inválida");
-        	estadoFinal.setForeground(Color.RED);
+        repaint();
+    }
+
+    private void actualizarComponenteTema(Component c, Color bg, Color fg) {
+        // Actualiza TitledBorder si existe
+        if (c instanceof JComponent && ((JComponent)c).getBorder() instanceof TitledBorder) {
+            ((TitledBorder)((JComponent)c).getBorder()).setTitleColor(fg);
         }
-        if (!ipFinal.isEmpty() && !ipInicio.isEmpty()) {
-            if (scanner.modelo.Metodos.validarIp(ipInicio) && scanner.modelo.Metodos.validarIp(ipFinal)) {
-	        	if (ipFinal.equals(ipInicio)) {
-		        	estadoFinal.setText("IPs iguales");
-		        	estadoFinal.setForeground(new Color(204, 170, 0));
-		        	
-		        	estadoInicio.setText("IPs iguales");
-		        	estadoInicio.setForeground(new Color(204, 170, 0));}
+
+        if (c instanceof JPanel) {
+            c.setBackground(bg);
+            for (Component hijo : ((JPanel) c).getComponents()) {
+                actualizarComponenteTema(hijo, bg, fg);
             }
-	     }
-  }
+        } else if (c instanceof JLabel) {
+            c.setForeground(fg);
+        } else if (c instanceof JButton) {
+            c.setBackground(modoOscuro ? Color.DARK_GRAY : new Color(46, 134, 222));
+            c.setForeground(Color.WHITE);
+        } else if (c instanceof JTextField) {
+            c.setBackground(modoOscuro ? new Color(70, 70, 70) : Color.WHITE);
+            c.setForeground(fg);
+            ((JTextField) c).setCaretColor(fg);
+        }
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-
         if (source == botonComenzar) {
+            String ipInicio = cajaIpInicio.getText();
+            String ipFinal = cajaIpFinal.getText();
 
-            String IpInicio = cajaIpInicio.getText();
-            String IpFinal = cajaIpFinal.getText();
-            String txTiempoMax = cajaEspMaximo.getText();
+            if (!Metodos.validarIp(ipInicio) || !Metodos.validarIp(ipFinal)) {
+                JOptionPane.showMessageDialog(this, "Revise las IPs ingresadas.");
+                return;
+            }
 
-            if (!IpInicio.isEmpty() && !IpFinal.isEmpty() ) {
-                try {
-                    int tiempoMax = Integer.parseInt(txTiempoMax);
+            if (ipInicio.equals(ipFinal)) {
+                JOptionPane.showMessageDialog(this, "Las IPs no pueden ser iguales.");
+                return;
+            }
 
-                    if (!scanner.modelo.Metodos.validarIp(IpInicio)) {
-                        JOptionPane.showMessageDialog(this, "La IP inicial no es válida.");
-                    } else {
-                    	
-                    	// Guarda los digitos de cada IP
-                    	
-                      	String[] listaIpFinal = (IpFinal.split("\\."));         	
-                    	int Di = Integer.parseInt(listaIpFinal[0]);
-                    	int Ci = Integer.parseInt(listaIpFinal[1]);
-                    	int Bi = Integer.parseInt(listaIpFinal[2]); 
-                    	int Ai = Integer.parseInt(listaIpFinal[3]);
-                    	
-                    	String[] listaIpInicial = (IpInicio.split("\\."));
-                    	int Df = Integer.parseInt(listaIpInicial[0]);
-                    	int Cf = Integer.parseInt(listaIpFinal[1]);
-                    	int Bf = Integer.parseInt(listaIpFinal[2]); 
-                    	int Af = Integer.parseInt(listaIpFinal[3]);
-     
-                    	for (int i = 0; i < 5; i++) {
-                    	    System.out.println(i);
-                    	}
-                    	
-              
-                        new VentanaCarga().setVisible(true);
+            long ipIniNum = Metodos.ipToLong(ipInicio);
+            long ipFinNum = Metodos.ipToLong(ipFinal);
+
+            if (ipFinNum < ipIniNum) {
+                JOptionPane.showMessageDialog(this, "La IP final no puede ser menor que la IP inicial.");
+                return;
+            }
+
+            int tiempoMax = 1000, cantPings = 3;
+
+            if (!cajaEspMaximo.getText().isEmpty()) {
+                if (!Metodos.validarNums(cajaEspMaximo.getText())) {
+                    JOptionPane.showMessageDialog(this, "Tiempo máximo debe ser numérico.");
+                    return;
+                } else {
+                    tiempoMax = Integer.parseInt(cajaEspMaximo.getText());
+                    if (tiempoMax < 10) {
+                        JOptionPane.showMessageDialog(this, "Tiempo máximo no puede ser menor a 10 ms.");
+                        return;
                     }
-
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "El tiempo máximo debe ser un número válido.");
                 }
             }
+
+            if (!cajaPings.getText().isEmpty()) {
+                if (!Metodos.validarNums(cajaPings.getText())) {
+                    JOptionPane.showMessageDialog(this, "Cantidad de pings debe ser numérica.");
+                    return;
+                } else {
+                    cantPings = Integer.parseInt(cajaPings.getText());
+                    if (cantPings > 10) {
+                        JOptionPane.showMessageDialog(this, "Cantidad de pings no puede superar 10.");
+                        return;
+                    }
+                }
+            }
+
+            long ipsScaneadas = (ipFinNum - ipIniNum) + 1;
+
+            new VentanaCarga(ipsScaneadas, ipInicio, ipFinal, tiempoMax, cantPings, modoOscuro).setVisible(true);
 
         } else if (source == botonLimpiar) {
             cajaIpInicio.setText("");
             cajaIpFinal.setText("");
             cajaEspMaximo.setText("");
+            cajaPings.setText("");
             estadoInicio.setText("");
             estadoFinal.setText("");
         }
     }
+
 }
