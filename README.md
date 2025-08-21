@@ -4,7 +4,7 @@ Este repositorio contiene un **scanner de redes** desarrollado en Java con **pro
 
 ## Cómo usar el programa
 
-1. **Ejecutar la ventana principal** (`VentanaPrincipal`):
+1. **Ejecutar el programa** (`ScannerDeRed.jar`):
    - Ingresar la IP de inicio y la IP final del rango a escanear.
    - Configurar el **tiempo máximo de respuesta** y la **cantidad de pings** si es necesario
    - Iniciar el escaneo. Se mostrará una barra de progreso y un contador de IPs escaneadas.
