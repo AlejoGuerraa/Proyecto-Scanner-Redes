@@ -1,0 +1,9 @@
+Proximos cambios:
+	El programa se va a dividir en 2 programas (2 funcionalidades)
+	
+	Pantalla principal deriva a:
+	- Pantalla scanner de redes
+		- Sigue como antes
+	- Pantalla detalles de red
+		- Hace un netstat -ano, -b, -s, que va a mostrar en una cuadricula los datos recolectados, como en el scanner de redes
+	
